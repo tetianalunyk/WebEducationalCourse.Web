@@ -22,6 +22,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     },
     [`&.${tableCellClasses.body}`]: {
         fontSize: 14,
+        'white-space': 'pre',
     },
 }));
 
@@ -39,18 +40,20 @@ export default function UserList() {
     const [open, setOpen] = useState(false);
     const [users, setUsers] = useState();
     const [isConfirmOpen, setConfirmOpen] = useState(false);
-    const [selectedUserId, setSelectedUserId] = useState();
+    const [selectedUser, setSelectedUser] = useState(null);
 
-    const handleClickOpen = () => {
+    const handleClickOpen = (user) => {
         setOpen(true);
+        setSelectedUser(user);
     };
     const handleClose = () => {
         setOpen(false);
+        setSelectedUser(null);
     };
 
-    const handleConfirmOpen = (id) => {
+    const handleConfirmOpen = (user) => {
+        setSelectedUser(user);
         setConfirmOpen(true);
-        setSelectedUserId(id);
     };
 
     const handleConfirmClose = () => {
@@ -58,18 +61,18 @@ export default function UserList() {
     };
 
     const handleConfirm = async () => {
-        if (selectedUserId)
-            await usersService.deleteUserById(selectedUserId);
+        if (selectedUser)
+            await usersService.deleteUserById(selectedUser.id);
         setConfirmOpen(false);
     };
 
     const renderRowActions = (row) => {
         return (
             <div align='center'>
-                <IconButton aria-label="Example" onClick={handleClickOpen}>
+                <IconButton aria-label="Example" onClick={() => handleClickOpen(row)}>
                     <CreateIcon color="info" />
                 </IconButton>
-                <IconButton aria-label="Example" onClick={() => handleConfirmOpen(row.id)}>
+                <IconButton aria-label="Example" onClick={() => handleConfirmOpen(row)}>
                     <DeleteForeverIcon color="primary" />
                 </IconButton>
             </div>
@@ -88,7 +91,7 @@ export default function UserList() {
 
     return (
         <>
-            <Button variant="outlined" onClick={handleClickOpen}>
+            <Button variant="outlined" onClick={() => setOpen(true)}>
                 New
             </Button>
             <TableContainer sx={{ width: '90%', margin: 'auto' }} component={Paper}>
@@ -112,14 +115,14 @@ export default function UserList() {
                                 <StyledTableCell align="center">{user.firstName}</StyledTableCell>
                                 <StyledTableCell align="center">{user.lastName}</StyledTableCell>
                                 <StyledTableCell align="center">{user.email}</StyledTableCell>
-                                <StyledTableCell align="center">{user.roles.map(r => r.name)}</StyledTableCell>
+                                <StyledTableCell align="center">{user.roles.map(r => `${r.name}\n`)}</StyledTableCell>
                                 <StyledTableCell align="center" component={() => renderRowActions(user)}></StyledTableCell>
                             </StyledTableRow>
                         ))}
                     </TableBody>
                 </Table>
             </TableContainer>
-            <UserCreateUpdateModal isVisible={open} onClose={handleClose} />
+            <UserCreateUpdateModal isVisible={open} onClose={handleClose} initialUser={selectedUser} />
             <Confirm
                 cancel='Cancel'
                 confirm='Delete'
