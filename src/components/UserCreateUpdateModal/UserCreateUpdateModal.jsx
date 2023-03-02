@@ -12,6 +12,8 @@ import TextField from '@mui/material/TextField';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { usersService } from '../../services/UsersService';
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
 
 const filter = createFilterOptions();
 
@@ -61,25 +63,33 @@ export default function UserCreateUpdateModal(props) {
 
   const handleClose = () => {
     setEditedUser(null);
+    setValue(null);
     onClose();
   };
 
   const handleSubmit = async () => {
-    const userToUpdate = { ...editedUser };
-    userToUpdate.roles = editedUser.roles?.map(role => role.id);
-    if (initialUser) {
-      const updatedUser = await usersService.updateUser(userToUpdate);
-      if (updatedUser.id) {
-        handleClose();
-      }
-    } else {
-      const createdUser = await usersService.createUser(userToUpdate);
-      if (createdUser.id) {
-        handleClose();
-      }
-    }
+    const newRoles = editedUser.roles.filter(r => !allRoles.find(ro => ro.name === r.name));
 
+    const addedRolesPromise = newRoles?.map(role => {
+      return usersService.addNewRole(role);
+    });
 
+    Promise.all(addedRolesPromise).then(async savedRoles => {
+      const userToUpdate = { ...editedUser };
+      userToUpdate.roles = editedUser.roles?.flatMap(role => role.id ? role.id : []);
+      userToUpdate.roles = userToUpdate.roles.concat(savedRoles?.map(role => role.id));
+      if (initialUser) {
+        const updatedUser = await usersService.updateUser(userToUpdate);
+        if (updatedUser.id) {
+          handleClose();
+        }
+      } else {
+        const createdUser = await usersService.createUser(userToUpdate);
+        if (createdUser.id) {
+          handleClose();
+        }
+      }
+    });
   };
 
   const handleFisrtNameChange = (e) => {
@@ -103,15 +113,31 @@ export default function UserCreateUpdateModal(props) {
     }))
   };
 
-  const addNewRole = async (data) => {
-    const isRoleExist = allRoles.find(el => el.name === data.name);
-    if (!isRoleExist) {
-      const newRole = await usersService.addNewRole(data);
-      if (newRole && newRole.name) {
-        allRoles.push(newRole);
-      }
+  const handleRoleDelete = (id) => {
+    const userRoles = structuredClone(editedUser.roles);
+    const indexId = userRoles.findIndex(role => role.id === id);
+    if (indexId !== -1) {
+      userRoles.splice(indexId, 1);
     }
+
+    setEditedUser((x) => ({
+      ...x,
+      'roles': userRoles
+    }));
   };
+
+  const setUserRole = (role) => {
+    const userRoles = structuredClone(editedUser.roles);
+    const indexId = userRoles.findIndex(r => r.name === role.name);
+    if (indexId === -1) {
+      userRoles.push(role);
+
+      setEditedUser((x) => ({
+        ...x,
+        'roles': userRoles
+      }));
+    }
+  }
 
   useEffect(() => {
     if (initialUser)
@@ -138,12 +164,17 @@ export default function UserCreateUpdateModal(props) {
           open={isVisible}
         >
           <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose} sx={{ background: '#bbdefb' }}>
-            User
+            User Profile
           </BootstrapDialogTitle>
-          <DialogContent sx={{ display: 'inline-grid' }} dividers>
-            <TextField id="firstName" sx={{ margin: '10px' }} size="small" label="First Name" variant="outlined" onChange={handleFisrtNameChange} value={editedUser?.firstName} />
-            <TextField id="lastName" sx={{ margin: '10px' }} size="small" label="Last Name" variant="outlined" onChange={handleLastNameChange} value={editedUser?.lastName} />
-            <TextField id="email" sx={{ margin: '10px' }} size="small" label="Email" variant="outlined" onChange={handleEmailChange} value={editedUser?.email} />
+          <DialogContent sx={{ display: 'inline-grid', 'max-width': '300px;' }} dividers>
+            <TextField id="firstName" sx={{ margin: '10px' }} size="small" label="First Name" variant="outlined" onChange={handleFisrtNameChange} value={editedUser?.firstName} error ={editedUser?.firstName.length !== 0 ? false : true }/>
+            <TextField id="lastName" sx={{ margin: '10px' }} size="small" label="Last Name" variant="outlined" onChange={handleLastNameChange} value={editedUser?.lastName} error ={editedUser?.lastName.length !== 0 ? false : true }/>
+            <TextField id="email" sx={{ margin: '10px' }} size="small" label="Email" variant="outlined" onChange={handleEmailChange} value={editedUser?.email} error ={editedUser?.email.length !== 0 ? false : true }/>
+            <Stack direction="row" spacing={1} sx={{ margin: 'auto', padding: '10px', display: 'inline-block'}}>
+            {editedUser?.roles?.map((role) => (
+                <Chip label={role.name} variant="outlined" onDelete={() => handleRoleDelete(role.id)} />
+              ))}
+            </Stack>
             <Autocomplete
               size="small"
               value={value}
@@ -156,11 +187,10 @@ export default function UserCreateUpdateModal(props) {
                   const newRole = {
                     name: newValue.inputValue,
                   };
-                  addNewRole(newRole);
-                  // Create a new value from the user input
+                  setUserRole(newRole);
                   setValue(newRole);
                 } else {
-                  setValue(newValue);
+                  setUserRole(newValue);
                 }
               }}
               filterOptions={(options, params) => {
