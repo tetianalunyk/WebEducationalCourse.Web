@@ -63,11 +63,15 @@ export default function UserList() {
     const handleConfirm = async () => {
         if (selectedUser)
             await usersService.deleteUserById(selectedUser.id);
+            if (selectedUser.imageBlobKey) {
+                await usersService.deleteFile(selectedUser.imageBlobKey);
+            }
         setConfirmOpen(false);
     };
 
     const renderRowActions = (row) => {
         return (
+            <StyledTableCell>
             <div align='center'>
                 <IconButton aria-label="Example" onClick={() => handleClickOpen(row)}>
                     <CreateIcon color="info" />
@@ -76,13 +80,23 @@ export default function UserList() {
                     <DeleteForeverIcon color="primary" />
                 </IconButton>
             </div>
+            </StyledTableCell>
         )
     };
 
     useEffect(() => {
         const fetchUsers = async () => {
             await usersService.getAllUsers()
-                .then((data) => setUsers(data));
+                .then((data) => {
+                    const userPromises = data?.map(async user => ({
+                        ...user,
+                        image: user.imageBlobKey ? await usersService.getFileById(user.imageBlobKey) : null
+                    }));
+                    Promise.all(userPromises).then(users => {
+                        setUsers(users);
+                    });
+                    
+                });
         };
 
         if (!open)
@@ -110,7 +124,14 @@ export default function UserList() {
                         {users?.map((user) => (
                             <StyledTableRow key={user.id}>
                                 <StyledTableCell align="center" component="th" scope="row">
-                                    {user.imageBlobKey}
+                                    {user.image && (
+                                        <img
+                                            src={`${user.image}`}
+                                            alt={user.firstName}
+                                            loading="lazy"
+                                            width= '60px'
+                                        />
+                                    )}
                                 </StyledTableCell>
                                 <StyledTableCell align="center">{user.firstName}</StyledTableCell>
                                 <StyledTableCell align="center">{user.lastName}</StyledTableCell>

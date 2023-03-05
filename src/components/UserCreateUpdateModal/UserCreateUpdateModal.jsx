@@ -60,10 +60,14 @@ export default function UserCreateUpdateModal(props) {
   const [value, setValue] = useState(null);
   const [allRoles, setAllRoles] = useState();
   const [editedUser, setEditedUser] = useState();
+  const [file, setFile] = useState(null);
+  const [fileBlob, setFileBlob] = useState(null);
 
   const handleClose = () => {
     setEditedUser(null);
     setValue(null);
+    setFile(null);
+    setFileBlob(null);
     onClose();
   };
 
@@ -78,6 +82,13 @@ export default function UserCreateUpdateModal(props) {
       const userToUpdate = { ...editedUser };
       userToUpdate.roles = editedUser.roles?.flatMap(role => role.id ? role.id : []);
       userToUpdate.roles = userToUpdate.roles.concat(savedRoles?.map(role => role.id));
+      debugger;
+      if (initialUser && initialUser.imageBlobKey) {
+        await usersService.updateFile(editedUser.imageBlobKey, fileBlob);
+      } else {
+        const createdFile = await usersService.addFile(fileBlob);
+        userToUpdate.imageBlobKey = createdFile._id;
+      }
       if (initialUser) {
         const updatedUser = await usersService.updateUser(userToUpdate);
         if (updatedUser.id) {
@@ -91,6 +102,7 @@ export default function UserCreateUpdateModal(props) {
       }
     });
   };
+
 
   const handleFisrtNameChange = (e) => {
     setEditedUser((x) => ({
@@ -127,7 +139,7 @@ export default function UserCreateUpdateModal(props) {
   };
 
   const setUserRole = (role) => {
-    const userRoles = structuredClone(editedUser.roles);
+    const userRoles = editedUser?.roles ? structuredClone(editedUser.roles) : [];
     const indexId = userRoles.findIndex(r => r.name === role.name);
     if (indexId === -1) {
       userRoles.push(role);
@@ -137,11 +149,20 @@ export default function UserCreateUpdateModal(props) {
         'roles': userRoles
       }));
     }
-  }
+  };
+
+  const uploadFile = (e) => {
+    const blob = URL.createObjectURL(e.target.files[0]);
+    setFile(blob);
+    setFileBlob(e.target.files[0]);
+  };
 
   useEffect(() => {
-    if (initialUser)
+    if (initialUser) {
       setEditedUser(structuredClone(initialUser));
+      if (initialUser.image) 
+        setFile(initialUser.image);
+    }
   }, [initialUser, isVisible]);
 
   useEffect(() => {
@@ -152,7 +173,7 @@ export default function UserCreateUpdateModal(props) {
 
     if (isVisible)
       fetchAllRoles();
-  }, [isVisible, value]);
+  }, [isVisible, value, file]);
 
   return (
     <div>
@@ -167,9 +188,20 @@ export default function UserCreateUpdateModal(props) {
             User Profile
           </BootstrapDialogTitle>
           <DialogContent sx={{ display: 'inline-grid', 'max-width': '300px;' }} dividers>
-            <TextField id="firstName" sx={{ margin: '10px' }} size="small" label="First Name" variant="outlined" onChange={handleFisrtNameChange} value={editedUser?.firstName} error ={editedUser?.firstName.length !== 0 ? false : true }/>
-            <TextField id="lastName" sx={{ margin: '10px' }} size="small" label="Last Name" variant="outlined" onChange={handleLastNameChange} value={editedUser?.lastName} error ={editedUser?.lastName.length !== 0 ? false : true }/>
-            <TextField id="email" sx={{ margin: '10px' }} size="small" label="Email" variant="outlined" onChange={handleEmailChange} value={editedUser?.email} error ={editedUser?.email.length !== 0 ? false : true }/>
+            {file && (
+              <div style={{'margin': 'auto', padding: '20px'}}>
+                <img
+                    src={`${file}`}
+                    alt={editedUser?.firstName}
+                    loading="lazy"
+                    width= '110px'
+                    align='center'
+                />
+              </div>
+            )}
+            <TextField id="firstName" sx={{ margin: '10px' }} size="small" label="First Name" variant="outlined" onChange={handleFisrtNameChange} value={editedUser?.firstName} error ={editedUser?.firstName?.length !== 0 ? false : true }/>
+            <TextField id="lastName" sx={{ margin: '10px' }} size="small" label="Last Name" variant="outlined" onChange={handleLastNameChange} value={editedUser?.lastName} error ={editedUser?.lastName?.length !== 0 ? false : true }/>
+            <TextField id="email" sx={{ margin: '10px' }} size="small" label="Email" variant="outlined" onChange={handleEmailChange} value={editedUser?.email} error ={editedUser?.email?.length !== 0 ? false : true }/>
             <Stack direction="row" spacing={1} sx={{ margin: 'auto', padding: '10px', display: 'inline-block'}}>
             {editedUser?.roles?.map((role) => (
                 <Chip label={role.name} variant="outlined" onDelete={() => handleRoleDelete(role.id)} />
@@ -232,6 +264,19 @@ export default function UserCreateUpdateModal(props) {
                 <TextField sx={{ margin: '10px', width: '93%' }} {...params} label="Roles" />
               )}
             />
+            <Button
+              variant="contained"
+              component="label"
+              sx={{width: '93%', margin: 'auto'}}
+            >
+              Change Photo
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={uploadFile}
+              />
+            </Button>
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={handleSubmit}>
