@@ -14,6 +14,9 @@ import { usersService } from '../../services/UsersService';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import './UserCreateUpdateModal.css';
 
 const filter = createFilterOptions();
 
@@ -62,67 +65,166 @@ export default function UserCreateUpdateModal(props) {
   const [editedUser, setEditedUser] = useState();
   const [file, setFile] = useState(null);
   const [fileBlob, setFileBlob] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [isFormValid, setIsFormValid] = useState(true);
 
   const handleClose = () => {
     setEditedUser(null);
     setValue(null);
     setFile(null);
     setFileBlob(null);
+    setErrors({});
+    setIsFormValid(true);
     onClose();
   };
 
   const handleSubmit = async () => {
-    const newRoles = editedUser.roles.filter(r => !allRoles.find(ro => ro.name === r.name));
+    let isFormCorrect;
+    if (initialUser) {
+      isFormCorrect = !errors.firstName && !errors.lastName && !errors.email && !errors.roles;
+
+    } else {
+      isFormCorrect = Object.values(errors).length === 4 && Object.values(errors).every(value => {
+        if (value === null) {
+         return true;
+        }
+        return false;
+        });
+    }
+
+    if (!isFormCorrect) {
+      return setIsFormValid(isFormCorrect);
+    }
+
+    const newRoles = editedUser?.roles.filter(r => !allRoles.find(ro => ro.name === r.name));
 
     const addedRolesPromise = newRoles?.map(role => {
       return usersService.addNewRole(role);
     });
 
-    Promise.all(addedRolesPromise).then(async savedRoles => {
-      const userToUpdate = { ...editedUser };
-      userToUpdate.roles = editedUser.roles?.flatMap(role => role.id ? role.id : []);
-      userToUpdate.roles = userToUpdate.roles.concat(savedRoles?.map(role => role.id));
-      debugger;
-      if (initialUser && initialUser.imageBlobKey) {
-        await usersService.updateFile(editedUser.imageBlobKey, fileBlob);
-      } else {
-        const createdFile = await usersService.addFile(fileBlob);
-        userToUpdate.imageBlobKey = createdFile._id;
-      }
-      if (initialUser) {
-        const updatedUser = await usersService.updateUser(userToUpdate);
-        if (updatedUser.id) {
-          handleClose();
+    if (addedRolesPromise) {
+      Promise.all(addedRolesPromise).then(async savedRoles => {
+        const userToUpdate = { ...editedUser };
+        userToUpdate.roles = editedUser.roles?.flatMap(role => role.id ? role.id : []);
+        userToUpdate.roles = userToUpdate.roles.concat(savedRoles?.map(role => role.id));
+        debugger;
+        if (initialUser && initialUser.imageBlobKey) {
+          await usersService.updateFile(editedUser.imageBlobKey, fileBlob);
+        } else {
+          const createdFile = await usersService.addFile(fileBlob);
+          userToUpdate.imageBlobKey = createdFile._id;
         }
-      } else {
-        const createdUser = await usersService.createUser(userToUpdate);
-        if (createdUser.id) {
-          handleClose();
+        if (initialUser) {
+          const updatedUser = await usersService.updateUser(userToUpdate);
+          if (updatedUser.id) {
+            handleClose();
+          }
+        } else {
+          const createdUser = await usersService.createUser(userToUpdate);
+          if (createdUser.id) {
+            handleClose();
+          }
         }
-      }
-    });
+      });
+    }
   };
 
-
   const handleFisrtNameChange = (e) => {
+    const value = e.target.value;
     setEditedUser((x) => ({
       ...x,
-      'firstName': e.target.value
-    }))
+      'firstName': value
+    }));
+
+    if (!value) {
+      setErrors(x => ({
+        ...x,
+        firstName: 'This field cannot be empty!'
+      }));
+      return;
+    }
+
+    if (value && !value.match(/^[a-zA-Z]+$/)) {
+      setErrors(x => ({
+        ...x,
+        firstName: 'This field must contain letters only!'
+      }));
+      return;
+    }
+
+    setErrors(x => ({
+      ...x,
+      firstName: null
+    }));
   };
 
   const handleLastNameChange = (e) => {
+    const value = e.target.value;
     setEditedUser((x) => ({
       ...x,
-      'lastName': e.target.value
-    }))
+      'lastName': value
+    }));
+
+    if (!value) {
+      setErrors(x => ({
+        ...x,
+        lastName: 'This field cannot be empty!'
+      }));
+      return;
+    }
+
+    if (value && !value.match(/^[a-zA-Z]+$/)) {
+      setErrors(x => ({
+        ...x,
+        lastName: 'This field must contain letters only!'
+      }));
+      return;
+    }
+
+    setErrors(x => ({
+      ...x,
+      lastName: null
+    }));
   };
 
   const handleEmailChange = (e) => {
+    const value = e.target.value;
     setEditedUser((x) => ({
       ...x,
-      'email': e.target.value
-    }))
+      'email': value
+    }));
+
+    if (!value) {
+      setErrors(x => ({
+        ...x,
+        email: 'This field cannot be empty!'
+      }));
+      return;
+    }
+
+    let lastAtPos = value.lastIndexOf("@");
+    let lastDotPos = value.lastIndexOf(".");
+
+    if (
+      !(
+        lastAtPos < lastDotPos &&
+        lastAtPos > 0 &&
+        value.indexOf("@@") === -1 &&
+        lastDotPos > 2 &&
+        value.length - lastDotPos > 2
+      )
+    ) {
+      setErrors(x => ({
+        ...x,
+        email: 'Email is not valid!'
+      }));
+      return;
+    }
+
+    setErrors(x => ({
+      ...x,
+      email: null
+    }));
   };
 
   const handleRoleDelete = (id) => {
@@ -136,6 +238,11 @@ export default function UserCreateUpdateModal(props) {
       ...x,
       'roles': userRoles
     }));
+
+    setErrors((x) => ({
+      ...x,
+      'roles': 'At leact one role should be added!'
+    }));
   };
 
   const setUserRole = (role) => {
@@ -147,6 +254,11 @@ export default function UserCreateUpdateModal(props) {
       setEditedUser((x) => ({
         ...x,
         'roles': userRoles
+      }));
+
+      setErrors((x) => ({
+        ...x,
+        'roles': null
       }));
     }
   };
@@ -160,7 +272,7 @@ export default function UserCreateUpdateModal(props) {
   useEffect(() => {
     if (initialUser) {
       setEditedUser(structuredClone(initialUser));
-      if (initialUser.image) 
+      if (initialUser.image)
         setFile(initialUser.image);
     }
   }, [initialUser, isVisible]);
@@ -189,24 +301,44 @@ export default function UserCreateUpdateModal(props) {
           </BootstrapDialogTitle>
           <DialogContent sx={{ display: 'inline-grid', 'max-width': '300px;' }} dividers>
             {file && (
-              <div style={{'margin': 'auto', padding: '20px'}}>
+              <div style={{ 'margin': 'auto', padding: '20px' }}>
                 <img
-                    src={`${file}`}
-                    alt={editedUser?.firstName}
-                    loading="lazy"
-                    width= '110px'
-                    align='center'
+                  src={`${file}`}
+                  alt={editedUser?.firstName}
+                  loading="lazy"
+                  width='110px'
+                  align='center'
                 />
               </div>
             )}
-            <TextField id="firstName" sx={{ margin: '10px' }} size="small" label="First Name" variant="outlined" onChange={handleFisrtNameChange} value={editedUser?.firstName} error ={editedUser?.firstName?.length !== 0 ? false : true }/>
-            <TextField id="lastName" sx={{ margin: '10px' }} size="small" label="Last Name" variant="outlined" onChange={handleLastNameChange} value={editedUser?.lastName} error ={editedUser?.lastName?.length !== 0 ? false : true }/>
-            <TextField id="email" sx={{ margin: '10px' }} size="small" label="Email" variant="outlined" onChange={handleEmailChange} value={editedUser?.email} error ={editedUser?.email?.length !== 0 ? false : true }/>
-            <Stack direction="row" spacing={1} sx={{ margin: 'auto', padding: '10px', display: 'inline-block'}}>
-            {editedUser?.roles?.map((role) => (
+            <TextField id="firstName" sx={{ margin: '10px' }} size="small" label="First Name" variant="outlined" onChange={handleFisrtNameChange} value={editedUser?.firstName} error={errors?.firstName} />
+            {errors.firstName &&
+              <Box>
+                <span className="error-message">{errors.firstName}</span>
+              </Box>
+            }
+            <TextField id="lastName" sx={{ margin: '10px' }} size="small" label="Last Name" variant="outlined" onChange={handleLastNameChange} value={editedUser?.lastName} error={errors?.lastName} />
+            {errors.lastName &&
+              <Box>
+                <span className="error-message">{errors.lastName}</span>
+              </Box>
+            }
+            <TextField id="email" sx={{ margin: '10px' }} size="small" label="Email" variant="outlined" onChange={handleEmailChange} value={editedUser?.email} error={errors?.email} />
+            {errors.email &&
+              <Box>
+                <span className="error-message">{errors.email}</span>
+              </Box>
+            }
+            <Stack direction="row" spacing={1} sx={{ margin: 'auto', padding: '10px', display: 'inline-block' }}>
+              {editedUser?.roles?.map((role) => (
                 <Chip label={role.name} variant="outlined" onDelete={() => handleRoleDelete(role.id)} />
               ))}
             </Stack>
+            {errors.roles &&
+              <Box>
+                <span className="error-message">{errors.roles}</span>
+              </Box>
+            }
             <Autocomplete
               size="small"
               value={value}
@@ -267,7 +399,7 @@ export default function UserCreateUpdateModal(props) {
             <Button
               variant="contained"
               component="label"
-              sx={{width: '93%', margin: 'auto'}}
+              sx={{ width: '93%', margin: 'auto' }}
             >
               Change Photo
               <input
@@ -278,6 +410,12 @@ export default function UserCreateUpdateModal(props) {
               />
             </Button>
           </DialogContent>
+          {!isFormValid &&
+            <Alert severity="error">
+              <AlertTitle>Error</AlertTitle>
+              The form isn't filled correct — <strong>check it out!</strong>
+            </Alert>
+          }
           <DialogActions>
             <Button autoFocus onClick={handleSubmit}>
               Save changes
