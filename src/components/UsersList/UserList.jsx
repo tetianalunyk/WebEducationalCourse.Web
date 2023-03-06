@@ -14,6 +14,8 @@ import { usersService } from '../../services/UsersService';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import IconButton from '@mui/material/IconButton';
 import CreateIcon from '@mui/icons-material/Create';
+import TextField from '@mui/material/TextField';
+import './UserList.css'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -41,6 +43,14 @@ export default function UserList() {
     const [users, setUsers] = useState();
     const [isConfirmOpen, setConfirmOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
+    const [filterValue, setFilterValue] = useState('');
+    const [filteredUsers, setFilteredUsers] = useState(null);
+
+    const handleFilter = (e) => {
+        const filterValue = e.target.value.toLowerCase().trim();
+        setFilterValue(filterValue);
+        setFilteredUsers(users.filter(u => u.firstName.toLowerCase().includes(filterValue) || u.lastName.toLowerCase().includes(filterValue) || u.email.toLowerCase().includes(filterValue)));
+    };
 
     const handleClickOpen = (user) => {
         setOpen(true);
@@ -63,23 +73,23 @@ export default function UserList() {
     const handleConfirm = async () => {
         if (selectedUser)
             await usersService.deleteUserById(selectedUser.id);
-            if (selectedUser.imageBlobKey) {
-                await usersService.deleteFile(selectedUser.imageBlobKey);
-            }
+        if (selectedUser.imageBlobKey) {
+            await usersService.deleteFile(selectedUser.imageBlobKey);
+        }
         setConfirmOpen(false);
     };
 
     const renderRowActions = (row) => {
         return (
             <StyledTableCell>
-            <div align='center'>
-                <IconButton aria-label="Example" onClick={() => handleClickOpen(row)}>
-                    <CreateIcon color="info" />
-                </IconButton>
-                <IconButton aria-label="Example" onClick={() => handleConfirmOpen(row)}>
-                    <DeleteForeverIcon color="primary" />
-                </IconButton>
-            </div>
+                <div align='center'>
+                    <IconButton aria-label="Example" onClick={() => handleClickOpen(row)}>
+                        <CreateIcon color="info" />
+                    </IconButton>
+                    <IconButton aria-label="Example" onClick={() => handleConfirmOpen(row)}>
+                        <DeleteForeverIcon color="primary" />
+                    </IconButton>
+                </div>
             </StyledTableCell>
         )
     };
@@ -94,8 +104,8 @@ export default function UserList() {
                     }));
                     Promise.all(userPromises).then(users => {
                         setUsers(users);
+                        setFilteredUsers(users);
                     });
-                    
                 });
         };
 
@@ -105,9 +115,18 @@ export default function UserList() {
 
     return (
         <>
-            <Button variant="outlined" onClick={() => setOpen(true)}>
-                New
-            </Button>
+            <div className='action-bar'>
+                <Button variant="outlined" onClick={() => setOpen(true)}>
+                    New
+                </Button>
+                <TextField
+                    label="Filter"
+                    id="outlined-size-small"
+                    defaultValue={filterValue}
+                    size="small"
+                    onChange={handleFilter}
+                />
+            </div>
             <TableContainer sx={{ width: '90%', margin: 'auto' }} component={Paper}>
                 <Table aria-label="customized table">
                     <TableHead>
@@ -121,7 +140,7 @@ export default function UserList() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {users?.map((user) => (
+                        {filteredUsers?.map((user) => (
                             <StyledTableRow key={user.id}>
                                 <StyledTableCell align="center" component="th" scope="row">
                                     {user.image && (
@@ -129,7 +148,7 @@ export default function UserList() {
                                             src={`${user.image}`}
                                             alt={user.firstName}
                                             loading="lazy"
-                                            width= '60px'
+                                            width='60px'
                                         />
                                     )}
                                 </StyledTableCell>
