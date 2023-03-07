@@ -61,8 +61,8 @@ BootstrapDialogTitle.propTypes = {
 export default function UserCreateUpdateModal(props) {
   const { isVisible, onClose, initialUser } = props;
   const [value, setValue] = useState(null);
-  const [allRoles, setAllRoles] = useState();
-  const [editedUser, setEditedUser] = useState();
+  const [allRoles, setAllRoles] = useState([]);
+  const [editedUser, setEditedUser] = useState({});
   const [file, setFile] = useState(null);
   const [fileBlob, setFileBlob] = useState(null);
   const [errors, setErrors] = useState({});
@@ -75,6 +75,7 @@ export default function UserCreateUpdateModal(props) {
     setFileBlob(null);
     setErrors({});
     setIsFormValid(true);
+    setAllRoles([]);
     onClose();
   };
 
@@ -299,7 +300,7 @@ export default function UserCreateUpdateModal(props) {
           <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose} sx={{ background: '#bbdefb' }}>
             User Profile
           </BootstrapDialogTitle>
-          <DialogContent sx={{ display: 'inline-grid', 'max-width': '300px;' }} dividers>
+          <DialogContent sx={{ display: 'inline-grid', maxWidth: '300px;' }} >
             {file && (
               <div style={{ 'margin': 'auto', padding: '20px' }}>
                 <img
@@ -311,19 +312,19 @@ export default function UserCreateUpdateModal(props) {
                 />
               </div>
             )}
-            <TextField id="firstName" sx={{ margin: '10px' }} size="small" label="First Name" variant="outlined" onChange={handleFisrtNameChange} value={editedUser?.firstName} error={errors?.firstName} />
+            <TextField id="firstName" aria-label='firstName' sx={{ margin: '10px' }} size="small" label="First Name" variant="outlined" onChange={handleFisrtNameChange} value={editedUser?.firstName}  />
             {errors.firstName &&
               <Box>
                 <span className="error-message">{errors.firstName}</span>
               </Box>
             }
-            <TextField id="lastName" sx={{ margin: '10px' }} size="small" label="Last Name" variant="outlined" onChange={handleLastNameChange} value={editedUser?.lastName} error={errors?.lastName} />
+            <TextField id="lastName" aria-label='lastName' sx={{ margin: '10px' }} size="small" label="Last Name" variant="outlined" onChange={handleLastNameChange} value={editedUser?.lastName}/>
             {errors.lastName &&
               <Box>
                 <span className="error-message">{errors.lastName}</span>
               </Box>
             }
-            <TextField id="email" sx={{ margin: '10px' }} size="small" label="Email" variant="outlined" onChange={handleEmailChange} value={editedUser?.email} error={errors?.email} />
+            <TextField id="email" aria-label='email' sx={{ margin: '10px' }} size="small" label="Email" variant="outlined" onChange={handleEmailChange} value={editedUser?.email} />
             {errors.email &&
               <Box>
                 <span className="error-message">{errors.email}</span>
@@ -331,7 +332,7 @@ export default function UserCreateUpdateModal(props) {
             }
             <Stack direction="row" spacing={1} sx={{ margin: 'auto', padding: '10px', display: 'inline-block' }}>
               {editedUser?.roles?.map((role) => (
-                <Chip label={role.name} variant="outlined" onDelete={() => handleRoleDelete(role.id)} />
+                <Chip key={role.id} label={role.name} variant="outlined" onDelete={() => handleRoleDelete(role.id)} />
               ))}
             </Stack>
             {errors.roles &&

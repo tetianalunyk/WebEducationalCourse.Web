@@ -24,7 +24,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     },
     [`&.${tableCellClasses.body}`]: {
         fontSize: 14,
-        'white-space': 'pre',
+        whiteSpace: 'pre',
     },
 }));
 
@@ -40,7 +40,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 export default function UserList() {
     const [open, setOpen] = useState(false);
-    const [users, setUsers] = useState();
+    const [users, setUsers] = useState([]);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [filterValue, setFilterValue] = useState('');
@@ -83,10 +83,10 @@ export default function UserList() {
         return (
             <StyledTableCell>
                 <div align='center'>
-                    <IconButton aria-label="Example" onClick={() => handleClickOpen(row)}>
+                    <IconButton aria-label="Edit" onClick={() => handleClickOpen(row)}>
                         <CreateIcon color="info" />
                     </IconButton>
-                    <IconButton aria-label="Example" onClick={() => handleConfirmOpen(row)}>
+                    <IconButton aria-label="Delete" onClick={() => handleConfirmOpen(row)}>
                         <DeleteForeverIcon color="primary" />
                     </IconButton>
                 </div>
@@ -120,6 +120,7 @@ export default function UserList() {
                     New
                 </Button>
                 <TextField
+                    testid='filter'
                     label="Filter"
                     id="outlined-size-small"
                     defaultValue={filterValue}
@@ -127,7 +128,7 @@ export default function UserList() {
                     onChange={handleFilter}
                 />
             </div>
-            <TableContainer sx={{ width: '90%', margin: 'auto' }} component={Paper}>
+            <TableContainer sx={{ width: '90%', margin: 'auto' }} component={Paper} testid='table'>
                 <Table aria-label="customized table">
                     <TableHead>
                         <TableRow>
