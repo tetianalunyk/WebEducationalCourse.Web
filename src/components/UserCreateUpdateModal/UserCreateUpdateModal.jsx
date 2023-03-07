@@ -376,7 +376,7 @@ export default function UserCreateUpdateModal(props) {
               selectOnFocus
               clearOnBlur
               handleHomeEndKeys
-              id="free-solo-with-text-demo"
+              id="roles"
               options={allRoles}
               getOptionLabel={(option) => {
                 // Value selected with enter, right from the input

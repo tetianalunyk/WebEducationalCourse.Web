@@ -122,7 +122,7 @@ export default function UserList() {
                 <TextField
                     testid='filter'
                     label="Filter"
-                    id="outlined-size-small"
+                    id="filter"
                     defaultValue={filterValue}
                     size="small"
                     onChange={handleFilter}
