@@ -62,7 +62,7 @@ export default function UserCreateUpdateModal(props) {
   const { isVisible, onClose, initialUser } = props;
   const [value, setValue] = useState(null);
   const [allRoles, setAllRoles] = useState([]);
-  const [editedUser, setEditedUser] = useState({});
+  const [editedUser, setEditedUser] = useState(null);
   const [file, setFile] = useState(null);
   const [fileBlob, setFileBlob] = useState(null);
   const [errors, setErrors] = useState({});

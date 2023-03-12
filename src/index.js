@@ -7,11 +7,20 @@ import {
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import UserList from "./components/UsersList/UserList";
+import ModelList from './components/ModelsList/ModelList';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <UserList />,
+  },
+  {
+    path: '/management/users',
+    element: <UserList />
+  },
+  {
+    path: '/management/models',
+    element: <ModelList />
   },
 ]);
 
