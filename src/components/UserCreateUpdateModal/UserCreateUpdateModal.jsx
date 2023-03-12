@@ -266,15 +266,17 @@ export default function UserCreateUpdateModal(props) {
 
   const uploadFile = (e) => {
     const blob = URL.createObjectURL(e.target.files[0]);
-    setFile(blob);
-    setFileBlob(e.target.files[0]);
+    setFileBlob(blob);
+    setFile(e.target.files[0]);
   };
 
   useEffect(() => {
     if (initialUser) {
       setEditedUser(structuredClone(initialUser));
-      if (initialUser.image)
+      if (initialUser.image) {
         setFile(initialUser.image);
+        setFileBlob(URL.createObjectURL(initialUser.image));
+    }
     }
   }, [initialUser, isVisible]);
 
@@ -301,10 +303,10 @@ export default function UserCreateUpdateModal(props) {
             User Profile
           </BootstrapDialogTitle>
           <DialogContent sx={{ display: 'inline-grid', maxWidth: '300px;' }} >
-            {file && (
+            {fileBlob && (
               <div style={{ 'margin': 'auto', padding: '20px' }}>
                 <img
-                  src={`${file}`}
+                  src={`${fileBlob}`}
                   alt={editedUser?.firstName}
                   loading="lazy"
                   width='110px'

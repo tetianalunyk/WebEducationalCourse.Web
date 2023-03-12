@@ -11,6 +11,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import TextField from '@mui/material/TextField';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { modelsService } from '../../services/ModelsService';
+import { filesService } from '../../services/FilesService';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
@@ -112,18 +113,18 @@ export default function ModelCreateUpdateModal(props) {
                 modelToUpdate.tags = modelToUpdate.tags.concat(savedTags?.map(tag => tag.id));
                 if (filePreview) {
                     if (initialModel && initialModel.previewBlobKey) {
-                        await modelsService.updateFile(editedModel.previewBlobKey, filePreview);
+                        await filesService.updateFile(editedModel.previewBlobKey, filePreview);
                     } else {
-                        const createdFile = await modelsService.addFile(filePreview);
+                        const createdFile = await filesService.addFile(filePreview);
                         modelToUpdate.previewBlobKey = createdFile._id;
                     }
                 }
 
                 if (file) {
                     if (initialModel && initialModel.fileKey) {
-                        await modelsService.updateFile(editedModel.fileKey, file);
+                        await filesService.updateFile(editedModel.fileKey, file);
                     } else {
-                        const createdFile = await modelsService.addFile(file);
+                        const createdFile = await filesService.addFile(file);
                         modelToUpdate.fileKey = createdFile._id;
                     }
                 }
@@ -252,8 +253,8 @@ export default function ModelCreateUpdateModal(props) {
                     <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose} sx={{ background: '#bbdefb' }}>
                         Model Profile
                     </BootstrapDialogTitle>
-                    <DialogContent sx={{ display: 'inline-grid', maxWidth: '300px;' }} >
-                        {filePreviewBlob && (
+                    <DialogContent sx={{ display: 'inline-grid', maxWidth: '350px;' }} >
+                        {/* {filePreviewBlob && (
                             <div style={{ 'margin': 'auto', padding: '20px' }}>
                                 <img
                                     src={`${filePreviewBlob}`}
@@ -263,14 +264,14 @@ export default function ModelCreateUpdateModal(props) {
                                     align='center'
                                 />
                             </div>
-                        )}
+                        )} */}
                         <TextField id="name" aria-label='name' sx={{ margin: '10px', marginTop: '20px' }} size="small" label="Name" variant="outlined" onChange={handleNameChange} value={editedModel?.name} />
                         {errors.name &&
                             <Box>
                                 <span className="error-message">{errors.name}</span>
                             </Box>
                         }
-                        <TextField id="description" aria-label='description' sx={{ margin: '10px' }} size="small" label="Description" variant="outlined" onChange={handleDescriptionChange} value={editedModel?.description} />
+                        <TextField id="description" aria-label='description' sx={{ margin: '10px' }} size="small" label="Description" multiline rows={4} onChange={handleDescriptionChange} value={editedModel?.description} />
 
                         <Stack direction="row" spacing={1} sx={{ margin: 'auto', padding: '10px', display: 'inline-block' }}>
                             {editedModel?.tags?.map((tag) => (

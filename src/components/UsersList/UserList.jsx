@@ -16,6 +16,7 @@ import IconButton from '@mui/material/IconButton';
 import CreateIcon from '@mui/icons-material/Create';
 import TextField from '@mui/material/TextField';
 import './UserList.css'
+import { filesService } from '../../services/FilesService';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -74,7 +75,7 @@ export default function UserList() {
         if (selectedUser)
             await usersService.deleteUserById(selectedUser.id);
         if (selectedUser.imageBlobKey) {
-            await usersService.deleteFile(selectedUser.imageBlobKey);
+            await filesService.deleteFile(selectedUser.imageBlobKey);
         }
         setConfirmOpen(false);
     };
@@ -100,7 +101,7 @@ export default function UserList() {
                 .then((data) => {
                     const userPromises = data?.map(async user => ({
                         ...user,
-                        image: user.imageBlobKey ? await usersService.getFileById(user.imageBlobKey) : null
+                        image: user.imageBlobKey ? await filesService.getFileById(user.imageBlobKey) : null
                     }));
                     Promise.all(userPromises).then(users => {
                         setUsers(users);
@@ -146,7 +147,7 @@ export default function UserList() {
                                 <StyledTableCell align="center" component="th" scope="row">
                                     {user.image && (
                                         <img
-                                            src={`${user.image}`}
+                                            src={`${URL.createObjectURL(user.image)}`}
                                             alt={user.firstName}
                                             loading="lazy"
                                             width='60px'

@@ -16,6 +16,7 @@ import IconButton from '@mui/material/IconButton';
 import CreateIcon from '@mui/icons-material/Create';
 import TextField from '@mui/material/TextField';
 import './ModelList.css'
+import { filesService } from '../../services/FilesService';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -74,7 +75,10 @@ export default function ModelList() {
         if (selectedModel)
             await modelsService.deleteModelById(selectedModel.id);
         if (selectedModel.previewBlobKey) {
-            await modelsService.deleteFile(selectedModel.previewBlobKey);
+            await filesService.deleteFile(selectedModel.previewBlobKey);
+        }
+        if (selectedModel.fileKey) {
+            await filesService.deleteFile(selectedModel.fileKey);
         }
         setConfirmOpen(false);
     };
@@ -111,7 +115,7 @@ export default function ModelList() {
                 .then((data) => {
                     const modelPromises = data?.map(async model => ({
                         ...model,
-                        image: model.previewBlobKey ? await modelsService.getFileById(model.previewBlobKey) : null
+                        image: model.previewBlobKey ? await filesService.getFileById(model.previewBlobKey) : null
                     }));
                     Promise.all(modelPromises).then(models => {
                         setModels(models);
