@@ -83,18 +83,7 @@ export default function ModelCreateUpdateModal(props) {
     };
 
     const handleSubmit = async () => {
-        let isFormCorrect;
-        if (initialModel) {
-            isFormCorrect = !errors.name && !errors.tags && (file || initialModel.fileKey);
-
-        } else {
-            isFormCorrect = Object.values(errors).length === 2 && Object.values(errors).every(value => {
-                if (value === null) {
-                    return true;
-                }
-                return false;
-            });
-        }
+        const isFormCorrect = validateForm();
 
         if (!isFormCorrect) {
             return setIsFormValid(isFormCorrect);
@@ -143,6 +132,43 @@ export default function ModelCreateUpdateModal(props) {
             });
         }
     };
+
+    const validateForm = () => {
+        let isFormCorrect;
+        if (initialModel) {
+            isFormCorrect = !errors.name && !errors.tags && !errors.file && (file || initialModel.fileKey);
+
+        } else {
+            isFormCorrect = Object.values(errors).length === 3 && Object.values(errors).every(value => {
+                if (value === null) {
+                    return true;
+                }
+                return false;
+            });
+        }
+        if(!editedModel?.name) {
+            setErrors(x => ({
+                ...x,
+                name: 'This field cannot be empty!'
+            }));
+        }
+
+        if(!editedModel?.tags) {
+            setErrors(x => ({
+                ...x,
+                tags: 'At leact one tag should be added!'
+            }));
+        }
+
+        if (!(file || initialModel?.fileKey)) {
+            setErrors(x => ({
+                ...x,
+                file: 'File should be added!'
+            }));
+        }
+
+        return isFormCorrect;
+    }
 
     const handleNameChange = (e) => {
         const value = e.target.value;
@@ -219,6 +245,10 @@ export default function ModelCreateUpdateModal(props) {
 
     const uploadFile = (e) => {
         setFile(e.target.files[0]);
+        setErrors(x => ({
+            ...x,
+            file: null
+        }))
     };
 
     useEffect(() => {
@@ -254,24 +284,37 @@ export default function ModelCreateUpdateModal(props) {
                         Model Profile
                     </BootstrapDialogTitle>
                     <DialogContent sx={{ display: 'inline-grid', maxWidth: '350px;' }} >
-                        {/* {filePreviewBlob && (
-                            <div style={{ 'margin': 'auto', padding: '20px' }}>
+                        {filePreviewBlob && (
+                            <div style={{ 'margin': 'auto', padding: '10px' }}>
                                 <img
                                     src={`${filePreviewBlob}`}
                                     alt={editedModel?.name}
                                     loading="lazy"
-                                    width='110px'
+                                    width='90px'
                                     align='center'
                                 />
                             </div>
-                        )} */}
+                        )}
+                        <Button
+                            variant="outlined"
+                            component="label"
+                            sx={{ width: '93%', margin: '10px' }}
+                        >
+                            Change Preview
+                            <input
+                                type="file"
+                                hidden
+                                accept="image/*"
+                                onChange={uploadPreviewFile}
+                            />
+                        </Button>
                         <TextField id="name" aria-label='name' sx={{ margin: '10px', marginTop: '20px' }} size="small" label="Name" variant="outlined" onChange={handleNameChange} value={editedModel?.name} />
                         {errors.name &&
                             <Box>
                                 <span className="error-message">{errors.name}</span>
                             </Box>
                         }
-                        <TextField id="description" aria-label='description' sx={{ margin: '10px' }} size="small" label="Description" multiline rows={4} onChange={handleDescriptionChange} value={editedModel?.description} />
+                        <TextField id="description" aria-label='description' sx={{ margin: '10px' }} size="small" label="Description" multiline rows={2} onChange={handleDescriptionChange} value={editedModel?.description} />
 
                         <Stack direction="row" spacing={1} sx={{ margin: 'auto', padding: '10px', display: 'inline-block' }}>
                             {editedModel?.tags?.map((tag) => (
@@ -340,21 +383,14 @@ export default function ModelCreateUpdateModal(props) {
                                 <TextField sx={{ margin: '10px', width: '93%' }} {...params} label="Tags" />
                             )}
                         />
+                        {file && <p style={{margin: 10 + 'px'}}>Selected file: {file.name}</p>}
+                        {errors.file &&
+                            <Box>
+                                <span className="error-message">{errors.file}</span>
+                            </Box>
+                        }
                         <Button
-                            variant="contained"
-                            component="label"
-                            sx={{ width: '93%', margin: '10px' }}
-                        >
-                            Change Preview
-                            <input
-                                type="file"
-                                hidden
-                                accept="image/*"
-                                onChange={uploadPreviewFile}
-                            />
-                        </Button>
-                        <Button
-                            variant="contained"
+                            variant="outlined"
                             component="label"
                             sx={{ width: '93%', margin: '10px' }}
                         >
@@ -369,7 +405,6 @@ export default function ModelCreateUpdateModal(props) {
                     </DialogContent>
                     {!isFormValid &&
                         <Alert severity="error">
-                            <AlertTitle>Error</AlertTitle>
                             The form isn't filled correct — <strong>check it out!</strong>
                         </Alert>
                     }
