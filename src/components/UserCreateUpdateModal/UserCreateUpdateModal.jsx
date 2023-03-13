@@ -17,6 +17,7 @@ import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import './UserCreateUpdateModal.css';
+import { filesService } from '../../services/FilesService';
 
 const filter = createFilterOptions();
 
@@ -110,9 +111,9 @@ export default function UserCreateUpdateModal(props) {
         userToUpdate.roles = userToUpdate.roles.concat(savedRoles?.map(role => role.id));
         debugger;
         if (initialUser && initialUser.imageBlobKey) {
-          await usersService.updateFile(editedUser.imageBlobKey, fileBlob);
+          await filesService.updateFile(editedUser.imageBlobKey, fileBlob);
         } else {
-          const createdFile = await usersService.addFile(fileBlob);
+          const createdFile = await filesService.addFile(fileBlob);
           userToUpdate.imageBlobKey = createdFile._id;
         }
         if (initialUser) {
