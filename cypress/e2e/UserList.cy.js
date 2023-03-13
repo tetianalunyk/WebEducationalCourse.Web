@@ -1,6 +1,6 @@
 
 beforeEach(() => {
-  cy.visit('http://localhost:8000/');
+  cy.visit('http://localhost:8000/management/users');
 });
 
 describe('UserList', () => {
@@ -89,7 +89,7 @@ describe('UserList', () => {
     cy.contains('td', 'TestNameUpdated').parent('tr').children('td').find('button[aria-label="Delete"]').click();
     
     cy.get('button').contains('Delete').click();
-    cy.contains('TestName').should('not.exist');
+    cy.contains('TestNameUpdated').should('not.exist');
   });
 
 })

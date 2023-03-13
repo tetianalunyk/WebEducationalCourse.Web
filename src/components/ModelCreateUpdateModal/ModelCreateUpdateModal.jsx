@@ -146,17 +146,17 @@ export default function ModelCreateUpdateModal(props) {
                 return false;
             });
         }
-        if(!editedModel?.name) {
+        if (!editedModel?.name) {
             setErrors(x => ({
                 ...x,
                 name: 'This field cannot be empty!'
             }));
         }
 
-        if(!editedModel?.tags) {
+        if (!editedModel?.tags) {
             setErrors(x => ({
                 ...x,
-                tags: 'At leact one tag should be added!'
+                tags: 'At least one tag should be added!'
             }));
         }
 
@@ -383,7 +383,7 @@ export default function ModelCreateUpdateModal(props) {
                                 <TextField sx={{ margin: '10px', width: '93%' }} {...params} label="Tags" />
                             )}
                         />
-                        {file && <p style={{margin: 10 + 'px'}}>Selected file: {file.name}</p>}
+                        {file && <p style={{ margin: 10 + 'px' }}>Selected file: {file.name}</p>}
                         {errors.file &&
                             <Box>
                                 <span className="error-message">{errors.file}</span>
@@ -393,12 +393,12 @@ export default function ModelCreateUpdateModal(props) {
                             variant="outlined"
                             component="label"
                             sx={{ width: '93%', margin: '10px' }}
+                            id='file'
                         >
                             Change File
                             <input
-                                type="file"
                                 hidden
-                                accept="image/*"
+                                type="file"
                                 onChange={uploadFile}
                             />
                         </Button>
