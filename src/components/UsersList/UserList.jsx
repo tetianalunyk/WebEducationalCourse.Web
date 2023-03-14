@@ -121,7 +121,7 @@ export default function UserList() {
                     New
                 </Button>
                 <TextField
-                    testid='filter'
+                    data-testid='filter'
                     label="Filter"
                     id="filter"
                     defaultValue={filterValue}
