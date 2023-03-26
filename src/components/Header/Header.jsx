@@ -1,20 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 import { NavLink } from "react-router-dom";
-import Login from '../Login/Login';
 
 
 export default function Header() {
 
-  const [open, setOpen] = useState(false);
   const [loggedUser, setLoggedUser] = useState(localStorage.getItem('loggedUser'));
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   const Logout = async () => {
     localStorage.removeItem('accessToken');
@@ -36,12 +30,17 @@ export default function Header() {
                 <Button color="inherit" sx={{ marginLeft: '64%' }} onClick={Logout} >Logout</Button>
               </>
               :
-              <Button color="inherit" sx={{ marginLeft: '75%' }} onClick={() => setOpen(true)} >Login</Button>
+              <Button color="inherit" sx={{ marginLeft: '75%' }} >
+                <NavLink 
+                  to="/login"
+                  state={{
+                    setLoggedUser: { setLoggedUser }
+                  }}>Login</NavLink>
+              </Button>
             }
           </Toolbar>
         </AppBar>
       </Box>
-      <Login isVisible={open} onClose={handleClose} setLoggedUser={setLoggedUser} />
     </>
   );
 }
