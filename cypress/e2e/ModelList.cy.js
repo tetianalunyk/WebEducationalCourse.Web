@@ -1,9 +1,10 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 
 beforeEach(() => {
     cy.visit('http://localhost:8000/management/models');
 });
 
-describe('UserModel', () => {
+describe('ModelList', () => {
 
     it('should show a list of models', () => {
         cy.contains('test 1').should('be.visible');
@@ -14,7 +15,7 @@ describe('UserModel', () => {
     it('should filter a list of models', () => {
         cy.get('#filter').clear().type('3');
 
-        cy.contains('test 3').should('be.visible');
+        cy.wait(500).contains('test 3').should('be.visible');
         cy.contains('test 1').should('not.exist');
         cy.contains('test 2').should('not.exist');
     });
