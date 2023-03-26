@@ -95,40 +95,41 @@ export default function ModelCreateUpdateModal(props) {
         });
 
         if (addedTagsPromise) {
-            Promise.all(addedTagsPromise).then(async savedTags => {
-                const modelToUpdate = { ...editedModel };
-                modelToUpdate.tags = editedModel.tags?.flatMap(tag => tag.id ? tag.id : []);
-                modelToUpdate.tags = modelToUpdate.tags.concat(savedTags?.map(tag => tag.id));
-                if (filePreview) {
-                    if (initialModel && initialModel.previewBlobKey) {
-                        await filesService.updateFile(editedModel.previewBlobKey, filePreview);
-                    } else {
-                        const createdFile = await filesService.addFile(filePreview);
-                        modelToUpdate.previewBlobKey = createdFile._id;
+            Promise.all(addedTagsPromise)
+                .then(async savedTags => {
+                    const modelToUpdate = { ...editedModel };
+                    modelToUpdate.tags = editedModel.tags?.flatMap(tag => tag.id ? tag.id : []);
+                    modelToUpdate.tags = modelToUpdate.tags.concat(savedTags?.map(tag => tag.id));
+                    if (filePreview) {
+                        if (initialModel && initialModel.previewBlobKey) {
+                            await filesService.updateFile(editedModel.previewBlobKey, filePreview);
+                        } else {
+                            const createdFile = await filesService.addFile(filePreview);
+                            modelToUpdate.previewBlobKey = createdFile._id;
+                        }
                     }
-                }
 
-                if (file) {
-                    if (initialModel && initialModel.fileKey) {
-                        await filesService.updateFile(editedModel.fileKey, file);
-                    } else {
-                        const createdFile = await filesService.addFile(file);
-                        modelToUpdate.fileKey = createdFile._id;
+                    if (file) {
+                        if (initialModel && initialModel.fileKey) {
+                            await filesService.updateFile(editedModel.fileKey, file);
+                        } else {
+                            const createdFile = await filesService.addFile(file);
+                            modelToUpdate.fileKey = createdFile._id;
+                        }
                     }
-                }
 
-                if (initialModel) {
-                    const updatedModel = await modelsService.updateModel(modelToUpdate);
-                    if (updatedModel.id) {
-                        handleClose();
+                    if (initialModel) {
+                        await modelsService.updateModel(modelToUpdate);
+                    } else {
+                        await modelsService.createModel(modelToUpdate);
                     }
-                } else {
-                    const createdModel = await modelsService.createModel(modelToUpdate);
-                    if (createdModel.id) {
-                        handleClose();
-                    }
-                }
-            });
+                    
+                    handleClose();
+                })
+                .catch(err => {
+                    console.log(err);
+                    //todo: handle error
+                });
         }
     };
 
@@ -263,7 +264,11 @@ export default function ModelCreateUpdateModal(props) {
     useEffect(() => {
         const fetchAllTags = async () => {
             await modelsService.getAllTags()
-                .then((data) => setAllTags(data));
+                .then((data) => setAllTags(data))
+                .catch(err => {
+                    console.log(err);
+                    //todo: handle error
+                });
         };
 
         if (isVisible)

@@ -20,7 +20,7 @@ import { filesService } from '../../services/FilesService';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
-        backgroundColor: '#01579b',
+        backgroundColor: '#1976d2a6',
         color: theme.palette.common.white,
     },
     [`&.${tableCellClasses.body}`]: {
@@ -72,10 +72,15 @@ export default function UserList() {
     };
 
     const handleConfirm = async () => {
-        if (selectedUser)
-            await usersService.deleteUserById(selectedUser.id);
-        if (selectedUser.imageBlobKey) {
-            await filesService.deleteFile(selectedUser.imageBlobKey);
+        if (selectedUser) {
+            await usersService.deleteUserById(selectedUser.id)
+                .then(async res => {
+                    await filesService.deleteFile(selectedUser.imageBlobKey);
+                })
+                .catch(err => {
+                    console.log(err);
+                    //todo: handle error
+                });
         }
         setConfirmOpen(false);
     };
@@ -107,6 +112,10 @@ export default function UserList() {
                         setUsers(users);
                         setFilteredUsers(users);
                     });
+                })
+                .catch(err => {
+                    console.log(err);
+                    //todo: handle error
                 });
         };
 

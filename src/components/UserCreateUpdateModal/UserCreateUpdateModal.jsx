@@ -86,12 +86,12 @@ export default function UserCreateUpdateModal(props) {
       isFormCorrect = !errors.firstName && !errors.lastName && !errors.email && !errors.roles;
 
     } else {
-      isFormCorrect = Object.values(errors).length === 4 && Object.values(errors).every(value => {
+      isFormCorrect = Object.values(errors).length === 5 && Object.values(errors).every(value => {
         if (value === null) {
-         return true;
+          return true;
         }
         return false;
-        });
+      });
     }
 
     if (!isFormCorrect) {
@@ -105,29 +105,35 @@ export default function UserCreateUpdateModal(props) {
     });
 
     if (addedRolesPromise) {
-      Promise.all(addedRolesPromise).then(async savedRoles => {
-        const userToUpdate = { ...editedUser };
-        userToUpdate.roles = editedUser.roles?.flatMap(role => role.id ? role.id : []);
-        userToUpdate.roles = userToUpdate.roles.concat(savedRoles?.map(role => role.id));
-        debugger;
-        if (initialUser && initialUser.imageBlobKey) {
-          await filesService.updateFile(editedUser.imageBlobKey, fileBlob);
-        } else {
-          const createdFile = await filesService.addFile(fileBlob);
-          userToUpdate.imageBlobKey = createdFile._id;
-        }
-        if (initialUser) {
-          const updatedUser = await usersService.updateUser(userToUpdate);
-          if (updatedUser.id) {
-            handleClose();
+      Promise.all(addedRolesPromise)
+        .then(async savedRoles => {
+          const userToUpdate = { ...editedUser };
+          userToUpdate.roles = editedUser.roles?.flatMap(role => role.id ? role.id : []);
+          userToUpdate.roles = userToUpdate.roles.concat(savedRoles?.map(role => role.id));
+          if (initialUser && initialUser.imageBlobKey) {
+            await filesService.updateFile(editedUser.imageBlobKey, file)
+              .then(async file => {
+                await usersService.updateUser(userToUpdate)
+                  .then(res => {
+                    handleClose();
+                  });
+              });
+          } else {
+            await filesService.addFile(file)
+            .then(async file => {
+              userToUpdate.imageBlobKey = file._id;
+              await usersService.createUser(userToUpdate)
+                .then(res => {
+                  handleClose();
+                });
+            });
           }
-        } else {
-          const createdUser = await usersService.createUser(userToUpdate);
-          if (createdUser.id) {
-            handleClose();
-          }
-        }
-      });
+        })
+        .catch(err => {
+          debugger;
+          console.log(err);
+          //todo: handle error
+        });
     }
   };
 
@@ -229,6 +235,28 @@ export default function UserCreateUpdateModal(props) {
     }));
   };
 
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setEditedUser((x) => ({
+      ...x,
+      'password': value
+    }));
+
+    if (!value) {
+      setErrors(x => ({
+        ...x,
+        password: 'This field cannot be empty!'
+      }));
+      return;
+    }
+
+    setErrors(x => ({
+      ...x,
+      password: null
+    }));
+  };
+
+
   const handleRoleDelete = (id) => {
     const userRoles = structuredClone(editedUser.roles);
     const indexId = userRoles.findIndex(role => role.id === id);
@@ -277,7 +305,7 @@ export default function UserCreateUpdateModal(props) {
       if (initialUser.image) {
         setFile(initialUser.image);
         setFileBlob(URL.createObjectURL(initialUser.image));
-    }
+      }
     }
   }, [initialUser, isVisible]);
 
@@ -315,13 +343,13 @@ export default function UserCreateUpdateModal(props) {
                 />
               </div>
             )}
-            <TextField id="firstName" aria-label='firstName' sx={{ margin: '10px' }} size="small" label="First Name" variant="outlined" onChange={handleFisrtNameChange} value={editedUser?.firstName}  />
+            <TextField id="firstName" aria-label='firstName' sx={{ margin: '10px' }} size="small" label="First Name" variant="outlined" onChange={handleFisrtNameChange} value={editedUser?.firstName} />
             {errors.firstName &&
               <Box>
                 <span className="error-message">{errors.firstName}</span>
               </Box>
             }
-            <TextField id="lastName" aria-label='lastName' sx={{ margin: '10px' }} size="small" label="Last Name" variant="outlined" onChange={handleLastNameChange} value={editedUser?.lastName}/>
+            <TextField id="lastName" aria-label='lastName' sx={{ margin: '10px' }} size="small" label="Last Name" variant="outlined" onChange={handleLastNameChange} value={editedUser?.lastName} />
             {errors.lastName &&
               <Box>
                 <span className="error-message">{errors.lastName}</span>
@@ -331,6 +359,12 @@ export default function UserCreateUpdateModal(props) {
             {errors.email &&
               <Box>
                 <span className="error-message">{errors.email}</span>
+              </Box>
+            }
+            <TextField id="password" aria-label='password' sx={{ margin: '10px' }} size="small" type='password' label="Password" variant="outlined" onChange={handlePasswordChange} value={editedUser?.password} />
+            {errors.password &&
+              <Box>
+                <span className="error-message">{errors.lastName}</span>
               </Box>
             }
             <Stack direction="row" spacing={1} sx={{ margin: 'auto', padding: '10px', display: 'inline-block' }}>

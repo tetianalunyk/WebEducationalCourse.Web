@@ -1,4 +1,7 @@
-const baseUrl = 'https://localhost:5001/api/';
+import AuthService from "./AuthService";
+
+const baseUrl = 'https://localhost:44324/api/';
+const authService = new AuthService();
 
 export const modelsService = {
     getAllModels: async () => {
@@ -6,7 +9,12 @@ export const modelsService = {
             method: "get"
         });
 
-        return response.json();
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+
+        const result = await response.json();
+        return result;
     },
 
     getAllTags: async () => {
@@ -14,50 +22,105 @@ export const modelsService = {
             method: "get"
         });
 
-        return response.json();
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+
+        const result = await response.json();
+        return result;
     },
 
     deleteModelById: async (data) => {
-        const response = await fetch(baseUrl + 'models/' + data, {
-            method: "delete"
+        const request = () => fetch(baseUrl + 'models/' + data, {
+            method: "delete",
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+            }
         });
 
-        return response;
+        let response = await request();
+        if (response.status === 401 && await authService.refreshHandler()) {
+            // one more try:
+            response = await request();
+        }
+
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+
+        const result = await response.json();
+        return result;
     },
 
     addNewTag: async (data) => {
-        const response = await fetch(baseUrl + 'models/tags', {
+        const request = () => fetch(baseUrl + 'models/tags', {
             method: "post",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
             },
             body: JSON.stringify(data)
         });
 
-        return response.json();
+        let response = await request();
+        if (response.status === 401 && await authService.refreshHandler()) {
+            // one more try:
+            response = await request();
+        }
+
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+
+        const result = await response.json();
+        return result;
     },
 
     updateModel: async (data) => {
-        const response = await fetch(baseUrl + 'models/' + data.id, {
+        const request = () => fetch(baseUrl + 'models/' + data.id, {
             method: "put",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
             },
             body: JSON.stringify(data)
         });
 
-        return response.json();
+        let response = await request();
+        if (response.status === 401 && await authService.refreshHandler()) {
+            // one more try:
+            response = await request();
+        }
+
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+
+        const result = await response.json();
+        return result;
     },
 
     createModel: async (data) => {
-        const response = await fetch(baseUrl + 'models/', {
+        const request = () => fetch(baseUrl + 'models/', {
             method: "post",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
             },
             body: JSON.stringify(data)
         });
 
-        return response.json();
+        let response = await request();
+        if (response.status === 401 && await authService.refreshHandler()) {
+            // one more try:
+            response = await request();
+        }
+
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+
+        const result = await response.json();
+        return result;
     }
 }

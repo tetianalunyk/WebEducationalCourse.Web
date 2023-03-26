@@ -20,7 +20,7 @@ import { filesService } from '../../services/FilesService';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
-        backgroundColor: '#01579b',
+        backgroundColor: '#1976d2a6',
         color: theme.palette.common.white,
     },
     [`&.${tableCellClasses.body}`]: {
@@ -73,14 +73,22 @@ export default function ModelList() {
 
     const handleConfirm = async () => {
         if (selectedModel)
-            await modelsService.deleteModelById(selectedModel.id);
-        if (selectedModel.previewBlobKey) {
-            await filesService.deleteFile(selectedModel.previewBlobKey);
-        }
-        if (selectedModel.fileKey) {
-            await filesService.deleteFile(selectedModel.fileKey);
-        }
-        setConfirmOpen(false);
+            await modelsService.deleteModelById(selectedModel.id)
+                .then(async res => {
+                    if (selectedModel.previewBlobKey) {
+                        await filesService.deleteFile(selectedModel.previewBlobKey);
+                    }
+
+                    if (selectedModel.fileKey) {
+                        await filesService.deleteFile(selectedModel.fileKey);
+                    }
+
+                    setConfirmOpen(false);
+                })
+                .catch(err => {
+                    console.log(err);
+                    //todo: handle error
+                });
     };
 
     const renderRowActions = (row) => {
@@ -121,6 +129,10 @@ export default function ModelList() {
                         setModels(models);
                         setFilteredModels(models);
                     });
+                })
+                .catch(err => {
+                    console.log(err);
+                    //todo: handle error
                 });
         };
 
