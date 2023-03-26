@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
@@ -68,6 +69,7 @@ export default function ModelCreateUpdateModal(props) {
     const [filePreviewBlob, setFilePreviewBlob] = useState(null);
     const [errors, setErrors] = useState({});
     const [isFormValid, setIsFormValid] = useState(true);
+    const navigate = useNavigate();
 
     const handleClose = () => {
         setEditedModel(null);
@@ -123,12 +125,23 @@ export default function ModelCreateUpdateModal(props) {
                     } else {
                         await modelsService.createModel(modelToUpdate);
                     }
-                    
+
                     handleClose();
                 })
                 .catch(err => {
-                    console.log(err);
-                    //todo: handle error
+                    switch (err.message) {
+                        case '401':
+                            navigate('/unauthorized');
+                            break;
+                        case '403':
+                            navigate('/forbidden');
+                            break;
+                        case '500':
+                            navigate('/internalError');
+                            break;
+                        default:
+                            navigate('/');
+                    }
                 });
         }
     };
@@ -266,8 +279,19 @@ export default function ModelCreateUpdateModal(props) {
             await modelsService.getAllTags()
                 .then((data) => setAllTags(data))
                 .catch(err => {
-                    console.log(err);
-                    //todo: handle error
+                    switch (err.message) {
+                        case '401':
+                            navigate('/unauthorized');
+                            break;
+                        case '403':
+                            navigate('/forbidden');
+                            break;
+                        case '500':
+                            navigate('/internalError');
+                            break;
+                        default:
+                            navigate('/');
+                    }
                 });
         };
 

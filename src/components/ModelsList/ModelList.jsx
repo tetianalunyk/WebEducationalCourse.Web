@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Confirm } from 'react-admin';
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
@@ -46,6 +47,7 @@ export default function ModelList() {
     const [selectedModel, setSelectedModel] = useState(null);
     const [filterValue, setFilterValue] = useState('');
     const [filteredModels, setFilteredModels] = useState(null);
+    const navigate = useNavigate();
 
     const handleFilter = (e) => {
         const filterValue = e.target.value.toLowerCase().trim();
@@ -86,8 +88,19 @@ export default function ModelList() {
                     setConfirmOpen(false);
                 })
                 .catch(err => {
-                    console.log(err);
-                    //todo: handle error
+                    switch (err.message) {
+                        case '401':
+                            navigate('/unauthorized');
+                            break;
+                        case '403':
+                            navigate('/forbidden');
+                            break;
+                        case '500':
+                            navigate('/internalError');
+                            break;
+                        default:
+                            navigate('/');
+                    }
                 });
     };
 
@@ -131,8 +144,10 @@ export default function ModelList() {
                     });
                 })
                 .catch(err => {
-                    console.log(err);
-                    //todo: handle error
+                    if (err.message === '401')
+                        navigate('/login');
+                    else
+                        navigate('/error');
                 });
         };
 

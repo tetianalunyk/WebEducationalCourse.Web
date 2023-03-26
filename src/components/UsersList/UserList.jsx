@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Confirm } from 'react-admin';
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
@@ -46,6 +47,7 @@ export default function UserList() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [filterValue, setFilterValue] = useState('');
     const [filteredUsers, setFilteredUsers] = useState(null);
+    const navigate = useNavigate();
 
     const handleFilter = (e) => {
         const filterValue = e.target.value.toLowerCase().trim();
@@ -78,8 +80,19 @@ export default function UserList() {
                     await filesService.deleteFile(selectedUser.imageBlobKey);
                 })
                 .catch(err => {
-                    console.log(err);
-                    //todo: handle error
+                    switch (err.message) {
+                        case '401':
+                            navigate('/unauthorized');
+                            break;
+                        case '403':
+                            navigate('/forbidden');
+                            break;
+                        case '500':
+                            navigate('/internalError');
+                            break;
+                        default:
+                            navigate('/');
+                    }
                 });
         }
         setConfirmOpen(false);
@@ -114,14 +127,25 @@ export default function UserList() {
                     });
                 })
                 .catch(err => {
-                    console.log(err);
-                    //todo: handle error
+                    switch (err.message) {
+                        case '401':
+                            navigate('/unauthorized');
+                            break;
+                        case '403':
+                            navigate('/forbidden');
+                            break;
+                        case '500':
+                            navigate('/internalError');
+                            break;
+                        default:
+                            navigate('/');
+                    }
                 });
         };
 
         if (!open)
             fetchUsers();
-    }, [open, isConfirmOpen]);
+    }, [open, isConfirmOpen, navigate]);
 
     return (
         <>

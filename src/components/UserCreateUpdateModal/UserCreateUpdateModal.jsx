@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
@@ -68,6 +69,7 @@ export default function UserCreateUpdateModal(props) {
   const [fileBlob, setFileBlob] = useState(null);
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(true);
+  let navigate = useNavigate();
 
   const handleClose = () => {
     setEditedUser(null);
@@ -120,19 +122,29 @@ export default function UserCreateUpdateModal(props) {
               });
           } else {
             await filesService.addFile(file)
-            .then(async file => {
-              userToUpdate.imageBlobKey = file._id;
-              await usersService.createUser(userToUpdate)
-                .then(res => {
-                  handleClose();
-                });
-            });
+              .then(async file => {
+                userToUpdate.imageBlobKey = file._id;
+                await usersService.createUser(userToUpdate)
+                  .then(res => {
+                    handleClose();
+                  });
+              });
           }
         })
         .catch(err => {
-          debugger;
-          console.log(err);
-          //todo: handle error
+          switch (err.message) {
+            case '401':
+              navigate('/unauthorized');
+              break;
+            case '403':
+              navigate('/forbidden');
+              break;
+            case '500':
+              navigate('/internalError');
+              break;
+            default:
+              navigate('/');
+          }
         });
     }
   };

@@ -12,7 +12,7 @@ export default class authService {
 
         const response = await request();
         if (!response.ok) {
-            return response.status;
+            throw new Error(response.status);
         }
 
         const result = await response.json();
