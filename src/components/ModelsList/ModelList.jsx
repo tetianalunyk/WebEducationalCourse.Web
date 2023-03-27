@@ -153,7 +153,7 @@ export default function ModelList() {
 
         if (!open)
             fetchModels();
-    }, [open, isConfirmOpen]);
+    }, [open, isConfirmOpen, navigate]);
 
     return (
         <>

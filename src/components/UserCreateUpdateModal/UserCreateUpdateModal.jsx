@@ -343,7 +343,7 @@ export default function UserCreateUpdateModal(props) {
           <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose} sx={{ background: '#bbdefb' }}>
             User Profile
           </BootstrapDialogTitle>
-          <DialogContent sx={{ display: 'inline-grid', maxWidth: '300px;' }} >
+          <DialogContent sx={{ display: 'inline-grid', maxWidth: '340px;' }} >
             {fileBlob && (
               <div style={{ 'margin': 'auto', padding: '20px' }}>
                 <img

@@ -297,7 +297,7 @@ export default function ModelCreateUpdateModal(props) {
 
         if (isVisible)
             fetchAllTags();
-    }, [isVisible, value, file, filePreview]);
+    }, [isVisible, value, file, filePreview, navigate]);
 
     return (
         <div>

@@ -10,6 +10,7 @@ import './Login.css';
 const authService = new AuthService();
 
 export default function Login(props) {
+    const { handleUser } = props;
     const [isFormValid, setIsFormValid] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -94,7 +95,7 @@ export default function Login(props) {
                 localStorage.setItem('refreshToken', token.refreshToken);
                 var loggedUser = await usersService.getUserById(token.userID);
                 localStorage.setItem('loggedUser', loggedUser.email);
-                //setLoggedUser(loggedUser.email);
+                handleUser(loggedUser.email);
             })
             .catch(err => {
                 console.log(err);

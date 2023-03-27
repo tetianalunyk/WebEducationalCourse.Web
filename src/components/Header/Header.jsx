@@ -6,15 +6,15 @@ import Button from '@mui/material/Button';
 import { NavLink } from "react-router-dom";
 
 
-export default function Header() {
+export default function Header(props) {
 
-  const [loggedUser, setLoggedUser] = useState(localStorage.getItem('loggedUser'));
+  const {user, handleUser} = props;
 
   const Logout = async () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('loggedUser');
-    setLoggedUser(null);
+    handleUser(null);
   };
 
   return (
@@ -24,9 +24,9 @@ export default function Header() {
           <Toolbar>
             <Button color="inherit" sx={{ flexGrow: 1 }} ><NavLink to='/management/users'>Users</ NavLink ></Button>
             <Button color="inherit" sx={{ flexGrow: 1 }} ><NavLink to='/management/models'>Models</ NavLink ></Button>
-            {loggedUser ?
+            {user ?
               <>
-                <p style={{ width: '150px' }}>{loggedUser}</p>
+                <p style={{ width: '150px' }}>{user}</p>
                 <Button color="inherit" sx={{ marginLeft: '64%' }} onClick={Logout} >Logout</Button>
               </>
               :
@@ -34,7 +34,7 @@ export default function Header() {
                 <NavLink 
                   to="/login"
                   state={{
-                    setLoggedUser: { setLoggedUser }
+                    setLoggedUser: { user }
                   }}>Login</NavLink>
               </Button>
             }
