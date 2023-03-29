@@ -112,7 +112,7 @@ export default function Login(props) {
                         <span className="error-message">{errors.email}</span>
                     </Box>
                 }
-                <TextField id="Password" aria-label='password' type="password" sx={{ margin: '10px' }} size="small" label="Password" variant='outlined' onChange={handlePasswordChange} value={password} />
+                <TextField id="password" aria-label='password' type="password" sx={{ margin: '10px' }} size="small" label="Password" variant='outlined' onChange={handlePasswordChange} value={password} />
                 {errors.password &&
                     <Box>
                         <span className="error-message">{errors.password}</span>
@@ -120,10 +120,10 @@ export default function Login(props) {
                 }
                 {!isFormValid &&
                         <Alert severity="error" sx={{margin: '20px'}}>
-                            The form isn't filled correct — <strong>check it out!</strong>
+                            The form isn't filled correct — check it out!
                         </Alert>
                     }
-                <Button autoFocus onClick={handleSubmit}>
+                <Button autoFocus onClick={handleSubmit} id='login'>
                     Login
                 </Button>
             </Box>

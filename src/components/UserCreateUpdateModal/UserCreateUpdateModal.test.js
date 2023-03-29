@@ -9,6 +9,11 @@ import allRoles from '../../__mocks__/allRoles';
 import user from '@testing-library/user-event'
 
 jest.mock('../../services/UsersService');
+const mockedUsedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+   ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedUsedNavigate,
+}));
 
 beforeEach(() => {
     //jest.runOnlyPendingTimers();

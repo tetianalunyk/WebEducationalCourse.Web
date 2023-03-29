@@ -5,6 +5,11 @@ import { cleanup, fireEvent, render, screen} from '@testing-library/react';
 import ModelList from '../ModelsList/ModelList';
 
 jest.mock('../../services/UsersService');
+const mockedUsedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+   ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedUsedNavigate,
+}));
 
 beforeEach(() => {
     jest.useFakeTimers();

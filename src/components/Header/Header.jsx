@@ -27,7 +27,7 @@ export default function Header(props) {
             {user ?
               <>
                 <p style={{ width: '150px' }}>{user}</p>
-                <Button color="inherit" sx={{ marginLeft: '64%' }} onClick={Logout} >Logout</Button>
+                <Button color="inherit" sx={{ marginLeft: '64%' }} onClick={Logout} id='logout'>Logout</Button>
               </>
               :
               <Button color="inherit" sx={{ marginLeft: '75%' }} >

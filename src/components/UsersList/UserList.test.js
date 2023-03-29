@@ -5,9 +5,16 @@ import UserList from './UserList';
 import { usersService } from '../../services/UsersService';
 import allUsers from '../../__mocks__/allUsers';
 import allRoles from '../../__mocks__/allRoles';
-import user from '@testing-library/user-event'
+import user from '@testing-library/user-event';
+import { filesService } from '../../services/FilesService';
 
 jest.mock('../../services/UsersService');
+jest.mock('../../services/FilesService');
+const mockedUsedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+    ...jest.requireActual('react-router-dom'),
+    useNavigate: () => mockedUsedNavigate,
+}));
 
 beforeEach(() => {
     //jest.runOnlyPendingTimers();
@@ -30,9 +37,10 @@ describe('UserList', () => {
     it('render grid with correct users', async () => {
         jest.spyOn(usersService, 'getAllUsers').mockResolvedValue(allUsers);
         jest.spyOn(usersService, 'getAllRoles').mockResolvedValue(allRoles);
+
         URL.createObjectURL = jest.fn();
 
-        
+
         render(<UserList />);
 
         await waitFor(() => {
@@ -41,25 +49,5 @@ describe('UserList', () => {
             expect(screen.getByText("Olya")).toBeInTheDocument();
         });
     });
-
-    /*it('filter users', async () => {
-        jest.spyOn(usersService, 'getAllUsers').mockResolvedValue(allUsers);
-        jest.spyOn(usersService, 'getAllRoles').mockResolvedValue(allRoles);
-        URL.createObjectURL = jest.fn();
-        
-        render(<UserList />);
-
-        const filter = screen.getByTestId('filter');
-        user.type(filter, 'tan');
-        //fireEvent.change(filter, {
-          //  target: { value: 'tan' },
-         // });
-
-        await waitFor(() => {
-            expect(screen.getByText('Tanya')).toBeInTheDocument();
-            expect(screen.queryByText('Sasha')).not.toBeInTheDocument();
-        });
-    });
-    */
 });
 

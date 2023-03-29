@@ -449,6 +449,7 @@ export default function UserCreateUpdateModal(props) {
             <Button
               variant="contained"
               component="label"
+              id="profilePhoto"
               sx={{ width: '93%', margin: 'auto' }}
             >
               Change Photo

@@ -1,6 +1,14 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
+Cypress.Commands.add('login', () => {
+    cy.visit('http://localhost:8000/login')
+    cy.get('#email').type("tetianka@gmail.com");
+    cy.get('#password').type("1234");
+
+    cy.get('#login').click();
+});
 
 beforeEach(() => {
+    cy.login();
     cy.visit('http://localhost:8000/management/models');
 });
 
@@ -26,6 +34,8 @@ describe('ModelList', () => {
         cy.get('#name').should('have.value', 'test 1');
         cy.get('#description').should('have.value', 'test 1');
         cy.get('.MuiChip-label').should('have.text', 'Tag 1');
+
+        cy.contains('Model Profile').find('button[aria-label="close"]').click();
     });
 
     it('should correctly filled all fields during creating new model', () => {
@@ -37,6 +47,8 @@ describe('ModelList', () => {
         cy.get('#name').should('have.value', 'test 5');
         cy.get('#description').should('have.value', 'Description');
         cy.get('.MuiChip-label').should('have.text', 'Tag 5');
+
+        cy.contains('Model Profile').find('button[aria-label="close"]').click();
     });
 
     it('should show error when fields are empty', () => {
@@ -47,6 +59,8 @@ describe('ModelList', () => {
         cy.contains("The form isn't filled correct").should('be.visible');
         cy.contains("At least one tag should be added!").should('be.visible');
         cy.contains("This field cannot be empty!").should('be.visible');
+
+        cy.contains('Model Profile').find('button[aria-label="close"]').click();
     });
 
     it('should correctly add new model', () => {
@@ -79,4 +93,8 @@ describe('ModelList', () => {
         cy.contains('TestNameUpdated').should('not.exist');
     });
 
-})
+});
+
+afterEach(() => {
+    cy.get('#logout').click();
+});

@@ -1,5 +1,13 @@
+Cypress.Commands.add('login', () => {
+  cy.visit('http://localhost:8000/login')
+  cy.get('#email').type("tetianka@gmail.com");
+  cy.get('#password').type("1234");
+
+  cy.get('#login').click();
+});
 
 beforeEach(() => {
+  cy.login();
   cy.visit('http://localhost:8000/management/users');
 });
 
@@ -15,6 +23,8 @@ describe('UserList', () => {
     cy.get('#lastName').should('have.value', 'TestSurname');
     cy.get('#email').should('have.value', 'TestEmail@gmail.com');
     cy.get('.MuiChip-label').should('have.text', 'Admin');
+
+    cy.contains('User Profile').find('button[aria-label="close"]').click();
   });
 
   it('should show error when First Name or Last Name contain not only letters', () => {
@@ -26,6 +36,8 @@ describe('UserList', () => {
 
     cy.contains('This field must contain letters only!').should('be.visible');
     cy.contains("The form isn't filled correct").should('be.visible');
+
+    cy.contains('User Profile').find('button[aria-label="close"]').click();
   });
 
   it('should show error when fields are empty', () => {
@@ -34,6 +46,8 @@ describe('UserList', () => {
     cy.contains('Save changes').click();
 
     cy.contains("The form isn't filled correct").should('be.visible');
+
+    cy.contains('User Profile').find('button[aria-label="close"]').click();
   });
 
   it('should show a list of users', () => {
@@ -58,6 +72,8 @@ describe('UserList', () => {
     cy.get('#firstName').should('have.value', 'Tanya');
     cy.get('#lastName').should('have.value', 'Shchur');
     cy.get('#email').should('have.value', 'tetianka@gmail.com');
+
+    cy.contains('User Profile').find('button[aria-label="close"]').click();
   });
 
   it('should correctly add new user', () => {
@@ -65,7 +81,9 @@ describe('UserList', () => {
     cy.get('#firstName').type("TestName");
     cy.get('#lastName').type("TestSurname");
     cy.get('#email').type("TestEmail@gmail.com");
+    cy.get('#password').type("1234");
     cy.get('#roles').type("Admin").get('li[data-option-index="0"]').click();
+    cy.get('#profilePhoto').selectFile('./cypress/mocks/test.png');
     cy.contains('Save changes').click();
 
     cy.contains('TestName').should('be.visible');
@@ -76,6 +94,7 @@ describe('UserList', () => {
     cy.get('#firstName').clear().type("TestNameUpdated");
     cy.get('#lastName').clear().type("TestSurnameUpdated");
     cy.get('#email').clear().type("TestEmailUpdated@gmail.com");
+    cy.get('#password').type("1234");
     cy.get('#roles').clear().type("Super admin").get('li[data-option-index="0"]').click();
     cy.contains('Save changes').click();
 
@@ -87,9 +106,13 @@ describe('UserList', () => {
 
   it('should correctly delete user', () => {
     cy.contains('td', 'TestNameUpdated').parent('tr').children('td').find('button[aria-label="Delete"]').click();
-    
+
     cy.get('button').contains('Delete').click();
     cy.contains('TestNameUpdated').should('not.exist');
   });
 
-})
+});
+
+afterEach(() => {
+  cy.get('#logout').click();
+});
