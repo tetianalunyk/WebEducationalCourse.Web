@@ -48,8 +48,7 @@ export const modelsService = {
             throw new Error(response.status);
         }
 
-        const result = await response.json();
-        return result;
+        return response;
     },
 
     addNewTag: async (data) => {
