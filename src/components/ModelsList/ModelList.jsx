@@ -46,13 +46,11 @@ export default function ModelList() {
     const [isConfirmOpen, setConfirmOpen] = useState(false);
     const [selectedModel, setSelectedModel] = useState(null);
     const [filterValue, setFilterValue] = useState('');
-    const [filteredModels, setFilteredModels] = useState(null);
     const navigate = useNavigate();
 
     const handleFilter = (e) => {
         const filterValue = e.target.value.toLowerCase().trim();
         setFilterValue(filterValue);
-        setFilteredModels(models.filter(u => u.name.toLowerCase().includes(filterValue) || u.description.toLowerCase().includes(filterValue) || u.updatedByFirstName.toLowerCase().includes(filterValue) || u.updatedByLastName.toLowerCase().includes(filterValue)));
     };
 
     const handleClickOpen = (model) => {
@@ -132,7 +130,7 @@ export default function ModelList() {
 
     useEffect(() => {
         const fetchModels = async () => {
-            await modelsService.getAllModels()
+            await modelsService.getAllModels(filterValue)
                 .then((data) => {
                     const modelPromises = data?.map(async model => ({
                         ...model,
@@ -140,7 +138,6 @@ export default function ModelList() {
                     }));
                     Promise.all(modelPromises).then(models => {
                         setModels(models);
-                        setFilteredModels(models);
                     });
                 })
                 .catch(err => {
@@ -153,7 +150,7 @@ export default function ModelList() {
 
         if (!open)
             fetchModels();
-    }, [open, isConfirmOpen, navigate]);
+    }, [open, isConfirmOpen, navigate, filterValue]);
 
     return (
         <>
@@ -183,7 +180,7 @@ export default function ModelList() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredModels?.map((model) => (
+                        {models?.map((model) => (
                             <StyledTableRow key={model.id}>
                                 <StyledTableCell align="center" component="th" scope="row">
                                     {model.image && (

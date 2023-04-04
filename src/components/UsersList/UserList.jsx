@@ -46,13 +46,11 @@ export default function UserList() {
     const [isConfirmOpen, setConfirmOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [filterValue, setFilterValue] = useState('');
-    const [filteredUsers, setFilteredUsers] = useState(null);
     const navigate = useNavigate();
 
     const handleFilter = (e) => {
         const filterValue = e.target.value.toLowerCase().trim();
         setFilterValue(filterValue);
-        setFilteredUsers(users.filter(u => u.firstName.toLowerCase().includes(filterValue) || u.lastName.toLowerCase().includes(filterValue) || u.email.toLowerCase().includes(filterValue)));
     };
 
     const handleClickOpen = (user) => {
@@ -115,7 +113,7 @@ export default function UserList() {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            await usersService.getAllUsers()
+            await usersService.getAllUsers(filterValue)
                 .then((data) => {
                     const userPromises = data?.map(async user => ({
                         ...user,
@@ -123,7 +121,6 @@ export default function UserList() {
                     }));
                     Promise.all(userPromises).then(users => {
                         setUsers(users);
-                        setFilteredUsers(users);
                     });
                 })
                 .catch(err => {
@@ -145,7 +142,7 @@ export default function UserList() {
 
         if (!open)
             fetchUsers();
-    }, [open, isConfirmOpen, navigate]);
+    }, [open, isConfirmOpen, navigate, filterValue]);
 
     return (
         <>
@@ -175,7 +172,7 @@ export default function UserList() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredUsers?.map((user) => (
+                        {users?.map((user) => (
                             <StyledTableRow key={user.id}>
                                 <StyledTableCell align="center" component="th" scope="row">
                                     {user.image && (

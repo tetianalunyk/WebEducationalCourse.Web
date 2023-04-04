@@ -4,8 +4,10 @@ const baseUrl = 'https://localhost:44324/api/';
 const authService = new AuthService();
 
 export const usersService = {
-    getAllUsers: async () => {
-        const response = await fetch(baseUrl + 'users', {
+    getAllUsers: async (data) => {
+        const response = await fetch(baseUrl + 'users?' + new URLSearchParams({
+            filter: data
+        }), {
             method: "get"
         });
 

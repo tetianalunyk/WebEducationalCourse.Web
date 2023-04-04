@@ -112,12 +112,8 @@ export default function ModelCreateUpdateModal(props) {
                     }
 
                     if (file) {
-                        if (initialModel && initialModel.fileKey) {
-                            await filesService.updateFile(editedModel.fileKey, file);
-                        } else {
-                            const createdFile = await filesService.addFile(file);
-                            modelToUpdate.fileKey = createdFile._id;
-                        }
+                        const createdFile = await filesService.addFile(file);
+                        modelToUpdate.fileKey = createdFile._id;
                     }
 
                     if (initialModel) {

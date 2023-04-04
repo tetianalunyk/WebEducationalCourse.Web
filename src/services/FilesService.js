@@ -48,6 +48,10 @@ export const filesService = {
             method: "GET",
         });
 
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+
         return response.blob().then(res => (res));
     },
 

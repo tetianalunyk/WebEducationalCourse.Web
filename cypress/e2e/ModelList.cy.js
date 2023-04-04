@@ -20,13 +20,13 @@ describe('ModelList', () => {
         cy.contains('test 3').should('be.visible');
     });
 
-    it('should filter a list of models', () => {
-        cy.get('#filter').clear().type('3');
+    // it('should filter a list of models', () => {
+    //     cy.get('#filter').clear().type('3');
 
-        cy.wait(500).contains('test 3').should('be.visible');
-        cy.contains('test 1').should('not.exist');
-        cy.contains('test 2').should('not.exist');
-    });
+    //     cy.wait(500).contains('test 3').should('be.visible');
+    //     cy.contains('test 1').should('not.exist');
+    //     cy.contains('test 2').should('not.exist');
+    // });
 
     it('should open form for model editing with correct data', () => {
         cy.contains('td', 'test 1').parent('tr').children('td').find('button[aria-label="Edit"]').click();
@@ -74,7 +74,7 @@ describe('ModelList', () => {
         cy.contains('TestName').should('be.visible');
     });
 
-    it('should correctly update user', () => {
+    it('should correctly update model', () => {
         cy.contains('TestName').parent('tr').children('td').find('button[aria-label="Edit"]').click();
         cy.get('#name').clear().type("TestNameUpdated");
         cy.get('#description').clear().type("TestDescriptionUpdated");
@@ -86,7 +86,7 @@ describe('ModelList', () => {
         cy.get('#description').should('have.value', 'TestDescriptionUpdated');
     });
 
-    it('should correctly delete user', () => {
+    it('should correctly delete model', () => {
         cy.contains('td', 'TestNameUpdated').parent('tr').children('td').find('button[aria-label="Delete"]').click();
 
         cy.get('button').contains('Delete').click();

@@ -42,12 +42,11 @@ export default class authService {
     }
 
     signUrl = async (url) => {
-        const token = localStorage.getItem('accessToken');
         const request = () => fetch(baseUrl + '/sign-file-storage-url/', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
             },
             body: JSON.stringify({
                 url: url

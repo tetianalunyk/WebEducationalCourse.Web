@@ -4,8 +4,8 @@ const baseUrl = 'https://localhost:44324/api/';
 const authService = new AuthService();
 
 export const modelsService = {
-    getAllModels: async () => {
-        const response = await fetch(baseUrl + 'models', {
+    getAllModels: async (data) => {
+        const response = await fetch(baseUrl + 'models?' + data, {
             method: "get"
         });
 
@@ -114,6 +114,24 @@ export const modelsService = {
             // one more try:
             response = await request();
         }
+
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+
+        const result = await response.json();
+        return result;
+    },
+
+    getModelHistoryById: async (id) => {
+        const request = () => fetch(baseUrl + 'models/' + id + '/history', {
+            method: "get",
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+            }
+        });
+
+        let response = await request();
 
         if (!response.ok) {
             throw new Error(response.status);

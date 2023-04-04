@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
@@ -15,6 +16,7 @@ export default function Login(props) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
+    const navigate = useNavigate();
 
     const handleEmailChange = (e) => {
         const value = e.target.value;
@@ -96,6 +98,7 @@ export default function Login(props) {
                 var loggedUser = await usersService.getUserById(token.userID);
                 localStorage.setItem('loggedUser', loggedUser.email);
                 handleUser(loggedUser.email);
+                navigate('/models');
             })
             .catch(err => {
                 console.log(err);

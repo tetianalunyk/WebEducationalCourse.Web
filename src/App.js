@@ -8,6 +8,7 @@ import Login from './components/Login/Login';
 import Forbidden from './components/Error/403';
 import InternalServerError from './components/Error/500';
 import ProtectedRoute from './routes/PrivateRoute';
+import ModelHistoryComponent from './components/ModelHistoryComponent/ModelHistoryComponent';
 import './App.css';
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
           <Route path="/unauthorized" element={<Login handleUser={setAuthorizedUser} />} />
           <Route path="/forbidden" element={<Forbidden />} />
           <Route path="/internalError" element={<InternalServerError />} />
+          <Route path="/models" element={<ModelHistoryComponent />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

@@ -8,7 +8,7 @@ import { NavLink } from "react-router-dom";
 
 export default function Header(props) {
 
-  const {user, handleUser} = props;
+  const { user, handleUser } = props;
 
   const Logout = async () => {
     localStorage.removeItem('accessToken');
@@ -22,8 +22,9 @@ export default function Header(props) {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <Button color="inherit" sx={{ flexGrow: 1 }} ><NavLink to='/management/users'>Users</ NavLink ></Button>
-            <Button color="inherit" sx={{ flexGrow: 1 }} ><NavLink to='/management/models'>Models</ NavLink ></Button>
+            <Button color="inherit" sx={{ flexGrow: 1 }} ><NavLink to='/models'>Models list</ NavLink ></Button>
+            <Button color="inherit" sx={{ flexGrow: 1 }} ><NavLink to='/management/users'>Users Management</ NavLink ></Button>
+            <Button color="inherit" sx={{ flexGrow: 1 }} ><NavLink to='/management/models'>Models Management</ NavLink ></Button>
             {user ?
               <>
                 <p style={{ width: '150px' }}>{user}</p>
@@ -31,7 +32,7 @@ export default function Header(props) {
               </>
               :
               <Button color="inherit" sx={{ marginLeft: '75%' }} >
-                <NavLink 
+                <NavLink
                   to="/login"
                   state={{
                     setLoggedUser: { user }

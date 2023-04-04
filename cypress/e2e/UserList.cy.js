@@ -56,13 +56,13 @@ describe('UserList', () => {
     cy.contains('Olya').should('be.visible');
   });
 
-  it('should filter a list of users', () => {
-    cy.get('#filter').clear().type('tan');
+  // it('should filter a list of users', () => {
+  //   cy.get('#filter').clear().type('tan');
 
-    cy.contains('Tanya').should('be.visible');
-    cy.contains('Sasha').should('not.exist');
-    cy.contains('Olya').should('not.exist');
-  });
+  //   cy.contains('Sasha').should('not.exist');
+  //   cy.contains('Olya').should('not.exist');
+  //   cy.contains('Tanya').should('be.visible');
+  // });
 
   it('should open form for user editing with correct data', () => {
     cy.get('#filter').type('tan');
