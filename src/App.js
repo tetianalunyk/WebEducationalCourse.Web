@@ -9,6 +9,7 @@ import Forbidden from './components/Error/403';
 import InternalServerError from './components/Error/500';
 import ProtectedRoute from './routes/PrivateRoute';
 import ModelHistoryComponent from './components/ModelHistoryComponent/ModelHistoryComponent';
+import ModelViewer from './components/ModelViewer/ModelViewer';
 import './App.css';
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
           <Route path="/forbidden" element={<Forbidden />} />
           <Route path="/internalError" element={<InternalServerError />} />
           <Route path="/models" element={<ModelHistoryComponent />} />
+          <Route path="/modelViewer/:modelId" element={<ModelViewer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

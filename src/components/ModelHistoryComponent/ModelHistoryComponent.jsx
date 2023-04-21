@@ -20,10 +20,9 @@ import Button from '@mui/material/Button';
 import PreviewIcon from '@mui/icons-material/Preview';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import TextField from '@mui/material/TextField';
-import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
-import AddIcon from '@mui/icons-material/Add';
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import Autocomplete from '@mui/material/Autocomplete';
+import { NavLink } from "react-router-dom";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -50,6 +49,8 @@ function Row(props) {
     const { row } = props;
     const [open, setOpen] = React.useState(false);
     const [model, setModel] = useState(row);
+    
+    const navigate = useNavigate();
 
     const handleModelHistoryOpen = async (row) => {
         if (!row.history) {
@@ -75,9 +76,8 @@ function Row(props) {
         }
     };
 
-    const handlePreviewOpen = (model) => {
-        //setOpen(true);
-        //setSelectedModel(model);
+    const handlePreviewOpen = (fileKey) => {
+        navigate('/modelViewer/' + fileKey)
     };
 
     const handleFileDownload = async (name, fileKey) => {
@@ -105,8 +105,8 @@ function Row(props) {
         return (
             <StyledTableCell>
                 <div align='center'>
-                    <Button aria-label="Preview" onClick={() => handlePreviewOpen(row)} endIcon={<PreviewIcon color="primary" />}>
-                        Preview
+                    <Button aria-label="Preview" onClick={() => handlePreviewOpen(fileKey)} endIcon={<PreviewIcon color="primary" />}>
+                    <NavLink to='/modelViewer'>Preview</ NavLink >
                     </Button>
                     <Button aria-label="Download" onClick={() => handleFileDownload(name, fileKey)} endIcon={<FileDownloadIcon color="primary" />}>
                         Download
